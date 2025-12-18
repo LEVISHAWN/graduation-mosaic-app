@@ -27,3 +27,9 @@ The React app will attempt to talk to the backend at `/api/...` on the same orig
 Notes and caveats:
  - The backend tries to call existing `utils.mosaic.generate_mosaic`. That function may use Streamlit utilities (progress bars) — if it relies on Streamlit it might error when called from Flask. In that case the endpoint will return a clear error and you can call the mosaic generation from the Streamlit UI (pages) instead.
  - Uploaded photos are stored at `data/photos` and generated mosaic is written to `data/mosaic.jpg` when server-side generation succeeds.
+
+PWA and Deployment notes:
+
+- A basic web manifest and icons have been added at `frontend/public/manifest.webmanifest` and `frontend/public/icons/` to enable mobile installability.
+- To complete PWA support and generate a service worker we recommend installing `vite-plugin-pwa` in the frontend and configuring it in `vite.config.js`. This requires `npm install` to succeed in your environment (network access to registry.npmjs.org). If your network blocks npm, you can still deploy the built `frontend/dist` as a static site and the static manifest/icons will allow basic add-to-home-screen flows on many platforms.
+- For Vercel: a `vercel.json` file is included to build the frontend and serve the SPA. Ensure the project is configured with the frontend as the build target and that the build command `npm run build` runs successfully in `frontend`. If you still see 404s on Vercel, set the Output Directory to `frontend/dist` and add a rewrite to `index.html` (already set in vercel.json).
