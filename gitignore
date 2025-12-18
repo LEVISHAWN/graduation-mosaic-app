@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+venv/
+.env
+
+.streamlit/secrets.toml
+
+data/
+*.jpg
+*.jpeg
+*.png
+*.csv
+*.pkl
+*.txt
+
+.vscode/
+.idea/
