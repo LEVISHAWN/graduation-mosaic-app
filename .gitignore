@@ -1,0 +1,20 @@
+# Ignore large media and environment files
+/data/photos/
+/data/*.jpg
+/data/*.jpeg
+/data/*.png
+/.venv/
+venv/
+node_modules/
+frontend/node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.env.local
+.cache/
+.idea/
+.vscode/
+
+# Keep small dataset files and code tracked
+# Add any extras you want to include explicitly
