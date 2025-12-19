@@ -21,6 +21,12 @@ from flask_cors import CORS
 import os
 import json
 import base64
+try:
+    # Load .env during local development if python-dotenv is installed.
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
 from utils import settings as settings_util
 from utils import email as email_util
 
@@ -160,10 +166,34 @@ def send_unlock():
     if not graduate_email:
         return jsonify({'error': 'graduate_email required'}), 400
     try:
-        email_util.send_unlock_email(graduate_email, app_url or '')
+        # If messages exist, include them in the unlock email so the graduate
+        # receives the content directly in their inbox when unlocked.
+        msgs = []
+        path = messages_json_path()
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                data = json.load(f)
+                # data expected to be list of message objects with 'message' field
+                for item in data:
+                    m = item.get('message') or item.get('text') or ''
+                    # if message is base64 encoded in frontend, attempt to decode
+                    try:
+                        import base64 as _b64
+                        # heuristic: if contains only base64 chars and no spaces and longer than 20?
+                        if isinstance(m, str) and len(m) > 20 and all(c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\n' for c in m.strip()[:40]):
+                            try:
+                                decoded = _b64.b64decode(m).decode('utf-8')
+                                m = decoded
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+                    msgs.append(m)
+
+        email_util.send_unlock_email(graduate_email, app_url or '', messages=msgs)
         return jsonify({'ok': True})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'email_failed', 'details': str(e)}), 500
 
 
 if __name__ == '__main__':
